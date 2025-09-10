@@ -180,7 +180,7 @@ kotlin {
                 implementation("androidx.appcompat:appcompat:1.7.1")
                 implementation("androidx.startup:startup-runtime:1.2.0")
                 implementation("androidx.core:core-ktx:1.17.0")
-                implementation("androidx.work:work-runtime-ktx:2.9.1")
+                implementation("androidx.work:work-runtime-ktx:2.10.3")
                 implementation("com.google.android.gms:play-services-location:21.3.0")
                 implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.9.3")
                 implementation(libs.androidx.lifecycle.process)
