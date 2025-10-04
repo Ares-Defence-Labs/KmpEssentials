@@ -1,6 +1,6 @@
 [versions]
 agp = "8.2.2"
-kotlin = "2.0.0"
+kotlin = "2.2.20"
 droidCompileSdk = "35"
 droidTargetSdk = "35"
 droidMinSdk = "16"
