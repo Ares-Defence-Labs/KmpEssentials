@@ -134,7 +134,7 @@ actual class KmpPermissionsManager {
 
                     Permission.Location -> {
                         val location = CLLocationManager()
-                        location.delegate = LocationPermissionsDelegate(runAction)
+                        location.delegate = LocationPermissionsDelegate(runAction, onDenied)
                         location.requestWhenInUseAuthorization()
                     }
 
@@ -161,7 +161,7 @@ actual class KmpPermissionsManager {
                 } else {
                     actionResult(
                         when (permission) {
-                            Permission.Location -> CLLocationManager().authorizationStatus() == 3 || CLLocationManager().authorizationStatus() == 4
+                            Permission.Location -> CLLocationManager().authorizationStatus() == kCLAuthorizationStatusAuthorizedWhenInUse || CLLocationManager().authorizationStatus() == kCLAuthorizationStatusAuthorizedAlways
                             Permission.Microphone -> AVAudioSession.sharedInstance()
                                 .recordPermission() == AVAudioSessionRecordPermissionGranted
 

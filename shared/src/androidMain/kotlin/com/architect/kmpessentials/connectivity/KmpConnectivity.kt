@@ -2,6 +2,7 @@ package com.architect.kmpessentials.connectivity
 
 import com.architect.kmpessentials.internal.ActionBoolParams
 import dev.tmapps.konnection.Konnection
+import kotlinx.coroutines.flow.distinctUntilChanged
 
 actual class KmpConnectivity {
     actual companion object {
@@ -15,7 +16,7 @@ actual class KmpConnectivity {
         }
 
         actual suspend fun listenToConnectionChange(connectionState: ActionBoolParams) {
-            konnection.observeHasConnection().collect { hasConnection ->
+            konnection.observeHasConnection().distinctUntilChanged().collect { hasConnection ->
                 connectionState(hasConnection)
             }
         }

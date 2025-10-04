@@ -3,6 +3,10 @@ package com.architect.kmpessentials.permissions.delegates
 import com.architect.kmpessentials.internal.ActionNoParams
 import platform.CoreLocation.CLLocationManager
 import platform.CoreLocation.CLLocationManagerDelegateProtocol
+import platform.CoreLocation.kCLAuthorizationStatusAuthorizedAlways
+import platform.CoreLocation.kCLAuthorizationStatusAuthorizedWhenInUse
+import platform.CoreLocation.kCLAuthorizationStatusDenied
+import platform.CoreLocation.kCLAuthorizationStatusNotDetermined
 import platform.darwin.NSObject
 
 class LocationPermissionsDelegate(
@@ -12,16 +16,17 @@ class LocationPermissionsDelegate(
     CLLocationManagerDelegateProtocol {
     override fun locationManagerDidChangeAuthorization(manager: CLLocationManager) {
         when (manager.authorizationStatus()) {
-            0 -> {// Not Determined
+            kCLAuthorizationStatusNotDetermined -> {// Not Determined
                 onDenied?.invoke()
             }
 
-            2 -> // denied
+            kCLAuthorizationStatusDenied -> // denied
             {
                 onDenied?.invoke()
             }
 
-            3, 4 -> { // granted
+            kCLAuthorizationStatusAuthorizedAlways,
+            kCLAuthorizationStatusAuthorizedWhenInUse -> { // granted
                 runAction()
             }
         }

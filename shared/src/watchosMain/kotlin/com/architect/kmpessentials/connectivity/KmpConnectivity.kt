@@ -3,6 +3,7 @@ package com.architect.kmpessentials.connectivity
 import com.architect.kmpessentials.connectivity.internals.ConnectionType
 import com.architect.kmpessentials.connectivity.internals.NWWatchPathMonitor
 import com.architect.kmpessentials.internal.ActionBoolParams
+import kotlinx.coroutines.flow.distinctUntilChanged
 
 actual class KmpConnectivity {
     actual companion object {
@@ -16,7 +17,7 @@ actual class KmpConnectivity {
         }
 
         actual suspend fun listenToConnectionChange(connectionState: ActionBoolParams) {
-            connectionMonitor.observeNetworkConnection().collect {
+            connectionMonitor.observeNetworkConnection().distinctUntilChanged().collect {
                 connectionState(it != null && it != ConnectionType.UNKNOWN_CONNECTION_TYPE)
             }
         }

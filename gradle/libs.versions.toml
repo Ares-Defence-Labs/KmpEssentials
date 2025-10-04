@@ -1,5 +1,5 @@
 [versions]
-agp = "8.13.0"
+agp = "8.2.2"
 kotlin = "2.0.0"
 droidCompileSdk = "35"
 droidTargetSdk = "35"

@@ -6,7 +6,7 @@ struct ContentView: View {
 
 	var body: some View {
         Text("").onAppear {
-            //SharedComponent.companion.runNativeHandler()
+            SharedComponent.companion.runNativeHandler()
         }
 	}
 }
