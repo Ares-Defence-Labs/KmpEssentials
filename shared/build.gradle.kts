@@ -238,65 +238,65 @@ kotlin {
 //    }
 //}
 //
-
-afterEvaluate {
-    mavenPublishing {
-        // Define coordinates for the published artifact
-        coordinates(
-            groupId = "io.github.thearchitect123",
-            artifactId = "kmpEssentials",
-            version = "2.6.5"
-        )
-
-        // Configure POM metadata for the published artifact
-        pom {
-            name.set("KmpEssentials")
-            description.set("An essentials library for Kotlin multiplatform that makes it easy to work with any native apis from your shared business logic. Supports iOS & Android")
-            inceptionYear.set("2024")
-            url.set("https://github.com/TheArchitect123/KmpEssentials")
-
-            licenses {
-                license {
-                    name.set("MIT")
-                    url.set("https://opensource.org/licenses/MIT")
-                }
-            }
-
-            // Specify developers information
-            developers {
-                developer {
-                    id.set("Dan Gerchcovich")
-                    name.set("TheArchitect123")
-                    email.set("dan.developer789@gmail.com")
-                }
-            }
-
-            // Specify SCM information
-            scm {
-                url.set("https://github.com/TheArchitect123/KmpEssentials")
-            }
-        }
-
-        // Configure publishing to Maven Central
-        publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL)
-
-        // Enable GPG signing for all publications
-        signAllPublications()
-    }
-}
-
-signing {
-    val privateKeyFile = project.properties["signing.privateKeyFile"] as? String
-        ?: error("No Private key file found")
-    val passphrase = project.properties["signing.password"] as? String
-        ?: error("No Passphrase found for signing")
-
-    // Read the private key from the file
-    val privateKey = File(privateKeyFile).readText(Charsets.UTF_8)
-
-    useInMemoryPgpKeys(privateKey, passphrase)
-    sign(publishing.publications)
-}
+//
+//afterEvaluate {
+//    mavenPublishing {
+//        // Define coordinates for the published artifact
+//        coordinates(
+//            groupId = "io.github.thearchitect123",
+//            artifactId = "kmpEssentials",
+//            version = "2.7.1"
+//        )
+//
+//        // Configure POM metadata for the published artifact
+//        pom {
+//            name.set("KmpEssentials")
+//            description.set("An essentials library for Kotlin multiplatform that makes it easy to work with any native apis from your shared business logic. Supports iOS & Android")
+//            inceptionYear.set("2024")
+//            url.set("https://github.com/TheArchitect123/KmpEssentials")
+//
+//            licenses {
+//                license {
+//                    name.set("MIT")
+//                    url.set("https://opensource.org/licenses/MIT")
+//                }
+//            }
+//
+//            // Specify developers information
+//            developers {
+//                developer {
+//                    id.set("Dan Gerchcovich")
+//                    name.set("TheArchitect123")
+//                    email.set("dan.developer789@gmail.com")
+//                }
+//            }
+//
+//            // Specify SCM information
+//            scm {
+//                url.set("https://github.com/TheArchitect123/KmpEssentials")
+//            }
+//        }
+//
+//        // Configure publishing to Maven Central
+//        publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL)
+//
+//        // Enable GPG signing for all publications
+//        signAllPublications()
+//    }
+//}
+//
+//signing {
+//    val privateKeyFile = project.properties["signing.privateKeyFile"] as? String
+//        ?: error("No Private key file found")
+//    val passphrase = project.properties["signing.password"] as? String
+//        ?: error("No Passphrase found for signing")
+//
+//    // Read the private key from the file
+//    val privateKey = File(privateKeyFile).readText(Charsets.UTF_8)
+//
+//    useInMemoryPgpKeys(privateKey, passphrase)
+//    sign(publishing.publications)
+//}
 
 android {
     namespace = "io.github.thearchitect123"

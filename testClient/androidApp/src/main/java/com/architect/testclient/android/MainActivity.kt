@@ -17,6 +17,7 @@ import com.architect.kmpessentials.backgrounding.KmpBackgrounding
 import com.architect.kmpessentials.lifecycle.KmpLifecycle
 import com.architect.kmpessentials.localNotifications.KmpLocalNotifications
 import com.architect.kmpessentials.logging.KmpLogging
+import com.architect.kmpessentials.secureStorage.KmpPublicStorage
 import com.architect.testclient.android.MyApplicationTheme
 import kotlinx.coroutines.delay
 
@@ -33,6 +34,12 @@ class MainActivity : FragmentActivity() {
             KmpLocalNotifications.sendNotification("AHAHAH", "HAAHA<MMMAAHAHAHAHA!")
         }
 
+        KmpPublicStorage.persistData("sample", 12L)
+        KmpPublicStorage.persistData("sample2", 12.5.toDouble())
+
+        val result = KmpPublicStorage.getIntFromKey("sample")
+        val result4 = KmpPublicStorage.getDoubleFromKey("sample2")
+        val response = ""
         //    KmpLocalNotifications.scheduleAlarmNotification(5000, "Hello", "Testing")
 //        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
 //            val permission = android.Manifest.permission.FOREGROUND_SERVICE_DATA_SYNC

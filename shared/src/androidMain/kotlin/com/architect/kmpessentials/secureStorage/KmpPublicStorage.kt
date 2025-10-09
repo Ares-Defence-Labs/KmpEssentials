@@ -37,7 +37,9 @@ actual class KmpPublicStorage {
                 is Boolean -> sharedPreference.edit().putBoolean(key, item)
                 is String -> sharedPreference.edit().putString(key, item)
                 is Int -> sharedPreference.edit().putInt(key, item)
-                else -> sharedPreference.edit().putLong(key, item as Long)
+                is Double ->  sharedPreference.edit().putLong(key, java.lang.Double.doubleToRawLongBits(item))
+                is Long -> sharedPreference.edit().putLong(key, item)
+                else -> sharedPreference.edit().putString(key, "$item")
             }.apply()
         }
 
@@ -46,11 +48,21 @@ actual class KmpPublicStorage {
         }
 
         actual fun getLongFromKey(key: String): Long? {
-            return sharedPreference.getLong(key, 0)
+            try {
+                return sharedPreference.getLong(key, 0L)
+            }
+            catch (ex: Exception){
+                return sharedPreference.getInt(key, 0).toLong()
+            }
         }
 
         actual fun getIntFromKey(key: String): Int? {
-            return sharedPreference.getInt(key, 0)
+            try {
+                return sharedPreference.getInt(key, 0)
+            }
+            catch (ex: Exception){
+                return sharedPreference.getLong(key, 0L).toInt()
+            }
         }
 
         actual fun getFloatFromKey(key: String): Float? {
@@ -62,7 +74,7 @@ actual class KmpPublicStorage {
         }
 
         actual fun getDoubleFromKey(key: String): Double? {
-            return sharedPreference.getFloat(key, 0.0f).toDouble()
+            return java.lang.Double.longBitsToDouble(sharedPreference.getLong(key, 0L))
         }
 
         fun getAllKeys(): List<String> {
@@ -86,7 +98,11 @@ actual class KmpPublicStorage {
         }
 
         actual fun getDoubleFromKey(key: String, defValue: Double): Double {
-            return sharedPreference.getFloat(key, defValue.toFloat()).toDouble()
+            val bits = sharedPreference.getLong(
+                key,
+                java.lang.Double.doubleToRawLongBits(defValue)
+            )
+            return java.lang.Double.longBitsToDouble(bits)
         }
 
         actual fun getBooleanFromKey(
