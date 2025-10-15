@@ -6,7 +6,7 @@ droidTargetSdk = "35"
 droidMinSdk = "16"
 lifecycleProcess = "2.9.4"
 swiftKlib =  "0.6.4"
-compose-multiplatform = "1.8.2"
+compose-multiplatform = "1.9.1"
 
 [libraries]
 androidx-lifecycle-process = { group = "androidx.lifecycle", name = "lifecycle-process", version.ref = "lifecycleProcess" }
