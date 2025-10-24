@@ -5,7 +5,7 @@ plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidLibrary)
 
-    kotlin("plugin.serialization") version "1.9.22"
+    kotlin("plugin.serialization") version "2.2.21"
 
     id("org.gradle.maven-publish")
     id("signing")
