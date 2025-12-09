@@ -1,6 +1,7 @@
 package com.architect.kmpessentials.deviceInfo
 
 import kotlinx.datetime.TimeZone
+import platform.CoreLocation.CLLocationManager
 import platform.WatchKit.WKInterfaceDevice
 
 actual class KmpDeviceInfo {
@@ -8,6 +9,10 @@ actual class KmpDeviceInfo {
 
         actual fun getDeviceTimeZone(): String {
             return TimeZone.currentSystemDefault().id
+        }
+
+        actual fun isLocationAvailable(): Boolean {
+            return CLLocationManager.locationServicesEnabled()
         }
 
         actual fun getRunningPlatform(): DevicePlatform {

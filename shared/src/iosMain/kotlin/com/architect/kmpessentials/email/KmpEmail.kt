@@ -18,19 +18,14 @@ actual class KmpEmail {
         actual fun isEmailSupported(action: ActionBoolParams) {
             KmpMainThread.runViaMainThread {
                 val mailtoUrl = NSURL.URLWithString("mailto:")
-                val messageToUrl = NSURL.URLWithString("message://")
                 action(
-                    (mailtoUrl != null && UIApplication.sharedApplication.canOpenURL(mailtoUrl))
-                            || (messageToUrl != null && UIApplication.sharedApplication.canOpenURL(
-                        messageToUrl
-                    )
-                            )
+                    mailtoUrl != null && UIApplication.sharedApplication.canOpenURL(mailtoUrl)
                 )
             }
         }
 
         actual fun openEmailClientApp(noAppsFound: DefaultAction?) {
-            val mailtoUrl = NSURL.URLWithString("message://")
+            val mailtoUrl = NSURL.URLWithString("mailto:")
             if (mailtoUrl != null && UIApplication.sharedApplication.canOpenURL(mailtoUrl)) {
                 UIApplication.sharedApplication.openURL(mailtoUrl)
             } else {

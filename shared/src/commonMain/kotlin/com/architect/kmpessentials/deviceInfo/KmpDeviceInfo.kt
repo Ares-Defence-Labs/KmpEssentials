@@ -16,6 +16,11 @@ expect class KmpDeviceInfo {
          * @return Device Information (Manufacturer, Device Name, etc)
          * */
         fun getDeviceSpecs(): DeviceSpecs
+
+        /**
+         * @return Whether location hardware is available & is switched on for the device
+         * */
+        fun isLocationAvailable() : Boolean
     }
 }
 

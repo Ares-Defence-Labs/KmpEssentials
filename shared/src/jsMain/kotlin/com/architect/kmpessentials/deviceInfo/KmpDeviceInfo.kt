@@ -14,6 +14,10 @@ actual class KmpDeviceInfo {
             return DevicePlatform.JS
         }
 
+        actual fun isLocationAvailable(): Boolean {
+            return false
+        }
+
         actual fun getDeviceSpecs(): DeviceSpecs {
             return DeviceSpecs(
                 window.navigator.platform,

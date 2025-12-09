@@ -1,6 +1,3 @@
-import com.vanniktech.maven.publish.SonatypeHost
-import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
-
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidLibrary)
@@ -10,7 +7,7 @@ plugins {
     id("org.gradle.maven-publish")
     id("signing")
     id("maven-publish")
-    id("com.vanniktech.maven.publish") version "0.28.0"
+    id("com.vanniktech.maven.publish") version "0.35.0"
     id("kotlin-parcelize")
 }
 
@@ -132,7 +129,7 @@ kotlin {
 
         }
 
-        val watchosDeviceArm64Main by getting{
+        val watchosDeviceArm64Main by getting {
 
         }
 
@@ -239,50 +236,48 @@ kotlin {
 //}
 //
 
-afterEvaluate {
-    mavenPublishing {
-        // Define coordinates for the published artifact
-        coordinates(
-            groupId = "io.github.thearchitect123",
-            artifactId = "kmpEssentials",
-            version = "2.7.2"
-        )
+mavenPublishing {
+    // Define coordinates for the published artifact
+    coordinates(
+        groupId = "io.github.thearchitect123",
+        artifactId = "kmpEssentials",
+        version = "2.8.0"
+    )
 
-        // Configure POM metadata for the published artifact
-        pom {
-            name.set("KmpEssentials")
-            description.set("An essentials library for Kotlin multiplatform that makes it easy to work with any native apis from your shared business logic. Supports iOS & Android")
-            inceptionYear.set("2024")
-            url.set("https://github.com/TheArchitect123/KmpEssentials")
+    // Configure POM metadata for the published artifact
+    pom {
+        name.set("KmpEssentials")
+        description.set("An essentials library for Kotlin multiplatform that makes it easy to work with any native apis from your shared business logic. Supports iOS & Android")
+        inceptionYear.set("2024")
+        url.set("https://github.com/TheArchitect123/KmpEssentials")
 
-            licenses {
-                license {
-                    name.set("MIT")
-                    url.set("https://opensource.org/licenses/MIT")
-                }
-            }
-
-            // Specify developers information
-            developers {
-                developer {
-                    id.set("Dan Gerchcovich")
-                    name.set("TheArchitect123")
-                    email.set("dan.developer789@gmail.com")
-                }
-            }
-
-            // Specify SCM information
-            scm {
-                url.set("https://github.com/TheArchitect123/KmpEssentials")
+        licenses {
+            license {
+                name.set("MIT")
+                url.set("https://opensource.org/licenses/MIT")
             }
         }
 
-        // Configure publishing to Maven Central
-        publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL)
+        // Specify developers information
+        developers {
+            developer {
+                id.set("Dan Gerchcovich")
+                name.set("TheArchitect123")
+                email.set("dan.developer789@gmail.com")
+            }
+        }
 
-        // Enable GPG signing for all publications
-        signAllPublications()
+        // Specify SCM information
+        scm {
+            url.set("https://github.com/TheArchitect123/KmpEssentials")
+        }
     }
+
+    // Configure publishing to Maven Central
+    publishToMavenCentral()
+
+    // Enable GPG signing for all publications
+    signAllPublications()
 }
 
 signing {

@@ -10,6 +10,10 @@ actual class KmpDeviceInfo {
             return TimeZone.currentSystemDefault().id
         }
 
+        actual fun isLocationAvailable(): Boolean {
+            return false
+        }
+
         actual fun getRunningPlatform(): DevicePlatform {
             val osName = System.getProperty("os.name").lowercase(Locale.getDefault())
             if (osName.contains("win")) {
