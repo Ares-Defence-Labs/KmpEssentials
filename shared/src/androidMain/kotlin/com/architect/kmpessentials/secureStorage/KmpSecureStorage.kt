@@ -1,5 +1,9 @@
 package com.architect.kmpessentials.secureStorage
 
+import android.content.Context
+import android.os.Build
+import android.security.keystore.KeyPermanentlyInvalidatedException
+import android.util.Log
 import com.architect.kmpessentials.KmpAndroid
 import com.architect.kmpessentials.internal.ActionBoolNullParams
 import com.architect.kmpessentials.internal.ActionDoubleNullParams
@@ -8,12 +12,28 @@ import com.architect.kmpessentials.internal.ActionIntNullParams
 import com.architect.kmpessentials.internal.ActionLongNullParams
 import com.architect.kmpessentials.internal.ActionStringNullParams
 import com.liftric.kvault.KVault
+import java.io.File
+import java.security.GeneralSecurityException
+import java.security.InvalidKeyException
+import java.security.KeyStore
+import java.security.KeyStoreException
+import javax.crypto.AEADBadTagException
+import javax.crypto.BadPaddingException
 
 actual class KmpSecureStorage {
     actual companion object {
+        private const val TAG = "KmpSecureStorage"
+        private const val DEFAULT_PREFERENCE_FILE_NAME = "secure-shared-preferences"
+        private const val ANDROIDX_MASTER_KEY_ALIAS = "_androidx_security_master_key_"
+
         private var droidPreferenceName: String? = null
-        private val keyVault by lazy {
-            KVault(KmpAndroid.applicationContext!!, droidPreferenceName)
+        private var keyVault: KVault? = null
+        private var recoveryAttempted = false
+
+        private fun vault(): KVault {
+            return keyVault ?: KVault(KmpAndroid.applicationContext!!, droidPreferenceName).also {
+                keyVault = it
+            }
         }
 
         actual suspend fun getLongFromKeyAsync(key: String, action: ActionLongNullParams) {
@@ -41,51 +61,176 @@ actual class KmpSecureStorage {
         }
 
         actual fun clearEntireStore() {
-            keyVault.clear()
+            write { vault().clear() }
         }
 
         actual fun deleteDataForKey(key: String) {
-            keyVault.deleteObject(key)
+            write { vault().deleteObject(key) }
         }
 
         actual fun <TData> persistData(key: String, item: TData) {
-            when (item) {
-                is Float -> keyVault.set(key, item)
-                is Double -> keyVault.set(key, item)
-                is Boolean -> keyVault.set(key, item)
-                is String -> keyVault.set(key, item)
-                is Long -> keyVault.set(key, item)
-                is Int -> keyVault.set(key, item)
+            write {
+                when (item) {
+                    is Float -> vault().set(key, item)
+                    is Double -> vault().set(key, item)
+                    is Boolean -> vault().set(key, item)
+                    is String -> vault().set(key, item)
+                    is Long -> vault().set(key, item)
+                    is Int -> vault().set(key, item)
+                    else -> true
+                }
             }
         }
 
         actual fun getStringFromKey(key: String): String? {
-            return keyVault.string(key)
+            return read { vault().string(key) }
         }
 
         actual fun getIntFromKey(key: String): Int? {
-            return keyVault.int(key)
+            return read { vault().int(key) }
         }
 
         actual fun getLongFromKey(key: String): Long? {
-            return keyVault.long(key)
+            return read { vault().long(key) }
         }
 
         actual fun getFloatFromKey(key: String): Float? {
-            return keyVault.float(key)
+            return read { vault().float(key) }
         }
 
         actual fun getBooleanFromKey(key: String): Boolean? {
-            return keyVault.bool(key)
+            return read { vault().bool(key) }
         }
 
         actual fun getDoubleFromKey(key: String): Double? {
-            return keyVault.double(key)
+            return read { vault().double(key) }
         }
 
         fun configureDroidPreferenceFileName(preferenceFileName: String) {
             droidPreferenceName = preferenceFileName
+            keyVault = null
+            recoveryAttempted = false
+        }
+
+        private inline fun <T> read(operation: () -> T?): T? {
+            return try {
+                operation()
+            } catch (ex: Throwable) {
+                if (recoverFromSecureStorageFailure(ex)) null else throw ex
+            }
+        }
+
+        private inline fun write(operation: () -> Boolean) {
+            try {
+                operation()
+            } catch (ex: Throwable) {
+                if (!recoverFromSecureStorageFailure(ex)) {
+                    throw ex
+                }
+
+                try {
+                    operation()
+                } catch (retryEx: Throwable) {
+                    if (isRecoverableSecureStorageFailure(retryEx)) {
+                        Log.e(TAG, "Secure storage write failed after recovery.", retryEx)
+                    } else {
+                        throw retryEx
+                    }
+                }
+            }
+        }
+
+        private fun recoverFromSecureStorageFailure(error: Throwable): Boolean {
+            if (!isRecoverableSecureStorageFailure(error)) {
+                return false
+            }
+
+            Log.e(TAG, "Recovering from Android secure storage failure.", error)
+            keyVault = null
+
+            if (!recoveryAttempted) {
+                recoveryAttempted = true
+                clearEncryptedPreferenceFile()
+                deleteAndroidxMasterKey()
+            }
+
+            return true
+        }
+
+        private fun isRecoverableSecureStorageFailure(error: Throwable): Boolean {
+            var current: Throwable? = error
+
+            while (current != null) {
+                if (
+                    current is KeyStoreException ||
+                    current is KeyPermanentlyInvalidatedException ||
+                    current is GeneralSecurityException ||
+                    current is InvalidKeyException ||
+                    current is AEADBadTagException ||
+                    current is BadPaddingException
+                ) {
+                    return true
+                }
+
+                val text = listOfNotNull(
+                    current::class.simpleName,
+                    current.message
+                ).joinToString(" ").lowercase()
+
+                if (
+                    text.contains("invalid key blob") ||
+                    text.contains("androidkeystore") ||
+                    text.contains("keystore") ||
+                    text.contains("aeadbadtagexception") ||
+                    text.contains("failed to decrypt") ||
+                    text.contains("failed to encrypt") ||
+                    text.contains("could not decrypt key") ||
+                    text.contains("invalid key")
+                ) {
+                    return true
+                }
+
+                current = current.cause
+            }
+
+            return false
+        }
+
+        private fun clearEncryptedPreferenceFile() {
+            val context = KmpAndroid.applicationContext ?: return
+            val preferenceFileName = droidPreferenceName ?: DEFAULT_PREFERENCE_FILE_NAME
+
+            try {
+                context.getSharedPreferences(preferenceFileName, Context.MODE_PRIVATE)
+                    .edit()
+                    .clear()
+                    .commit()
+            } catch (ex: Exception) {
+                Log.w(TAG, "Failed to clear encrypted shared preferences before deleting file.", ex)
+            }
+
+            try {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    context.deleteSharedPreferences(preferenceFileName)
+                } else {
+                    File(context.applicationInfo.dataDir, "shared_prefs/$preferenceFileName.xml").delete()
+                }
+            } catch (ex: Exception) {
+                Log.w(TAG, "Failed to delete encrypted shared preferences file.", ex)
+            }
+        }
+
+        private fun deleteAndroidxMasterKey() {
+            try {
+                val keyStore = KeyStore.getInstance("AndroidKeyStore")
+                keyStore.load(null)
+
+                if (keyStore.containsAlias(ANDROIDX_MASTER_KEY_ALIAS)) {
+                    keyStore.deleteEntry(ANDROIDX_MASTER_KEY_ALIAS)
+                }
+            } catch (ex: Exception) {
+                Log.w(TAG, "Failed to delete AndroidX master key.", ex)
+            }
         }
     }
 }
-
