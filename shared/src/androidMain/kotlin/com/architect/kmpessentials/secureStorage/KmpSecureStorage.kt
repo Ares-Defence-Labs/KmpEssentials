@@ -31,7 +31,10 @@ actual class KmpSecureStorage {
         private var recoveryAttempted = false
 
         private fun vault(): KVault {
-            return keyVault ?: KVault(KmpAndroid.applicationContext!!, droidPreferenceName).also {
+            val context = KmpAndroid.applicationContext
+                ?: throw IllegalStateException("KmpAndroid application context is not initialized.")
+
+            return keyVault ?: KVault(context, droidPreferenceName).also {
                 keyVault = it
             }
         }
@@ -115,7 +118,7 @@ actual class KmpSecureStorage {
         private inline fun <T> read(operation: () -> T?): T? {
             return try {
                 operation()
-            } catch (ex: Throwable) {
+            } catch (ex: Exception) {
                 if (recoverFromSecureStorageFailure(ex)) null else throw ex
             }
         }
@@ -123,24 +126,21 @@ actual class KmpSecureStorage {
         private inline fun write(operation: () -> Boolean) {
             try {
                 operation()
-            } catch (ex: Throwable) {
+            } catch (ex: Exception) {
                 if (!recoverFromSecureStorageFailure(ex)) {
                     throw ex
                 }
 
                 try {
                     operation()
-                } catch (retryEx: Throwable) {
-                    if (isRecoverableSecureStorageFailure(retryEx)) {
-                        Log.e(TAG, "Secure storage write failed after recovery.", retryEx)
-                    } else {
-                        throw retryEx
-                    }
+                } catch (retryEx: Exception) {
+                    Log.e(TAG, "Secure storage write failed after recovery.", retryEx)
+                    throw retryEx
                 }
             }
         }
 
-        private fun recoverFromSecureStorageFailure(error: Throwable): Boolean {
+        private fun recoverFromSecureStorageFailure(error: Exception): Boolean {
             if (!isRecoverableSecureStorageFailure(error)) {
                 return false
             }
@@ -157,7 +157,7 @@ actual class KmpSecureStorage {
             return true
         }
 
-        private fun isRecoverableSecureStorageFailure(error: Throwable): Boolean {
+        private fun isRecoverableSecureStorageFailure(error: Exception): Boolean {
             var current: Throwable? = error
 
             while (current != null) {
@@ -173,7 +173,7 @@ actual class KmpSecureStorage {
                 }
 
                 val text = listOfNotNull(
-                    current::class.simpleName,
+                    current.javaClass.simpleName,
                     current.message
                 ).joinToString(" ").lowercase()
 
