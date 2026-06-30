@@ -10,6 +10,7 @@ import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.ProcessLifecycleOwner
+import com.architect.kmpessentials.alerts.KmpWearAlert
 import com.architect.kmpessentials.aliases.DefaultAction
 import com.architect.kmpessentials.battery.KmpBattery
 import com.architect.kmpessentials.camera.KmpCamera
@@ -20,6 +21,7 @@ import com.architect.kmpessentials.internals.FilePickingMode
 import com.architect.kmpessentials.localNotifications.KmpLocalNotifications
 import com.architect.kmpessentials.mediaPicker.KmpMediaPicker
 import com.architect.kmpessentials.permissions.KmpPermissionsManager
+import com.architect.kmpessentials.wearables.WearComposeAlertService
 
 class KmpAndroid {
     companion object {
@@ -56,6 +58,7 @@ class KmpAndroid {
         fun preRegisterApplicationContext(
             appContext: Application,
         ) {
+            KmpWearAlert.initialise(WearComposeAlertService())
             if (!hasRegistered) {
                 applicationContext = appContext
                 if (Build.VERSION.SDK_INT >= VERSION_CODES.LOLLIPOP) { // battery services require Lolliop and above to work

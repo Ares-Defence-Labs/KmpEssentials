@@ -241,7 +241,7 @@ mavenPublishing {
     coordinates(
         groupId = "io.github.thearchitect123",
         artifactId = "kmpEssentials",
-        version = "2.8.0"
+        version = "2.8.8"
     )
 
     // Configure POM metadata for the published artifact
