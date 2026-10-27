@@ -43,4 +43,4 @@ And import the library into your target. There will be specialised documentation
 ```KmpLocalNotification.companion.sendNotification("Title Of App", "Message of Notification")```
 ## License
 
-This software is licensed under the MIT license. See [LICENSE](./LICENSE) for full disclosure.
+This software is licensed under the Apache License, Version 2.0. See [LICENSE](./LICENSE) for full disclosure.
